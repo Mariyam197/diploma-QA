@@ -32,6 +32,10 @@ public class DataHelper {
         return "4444 4444 4444 4442";
     }
 
+    private static String getCardNumberNotExistInDataBase() {
+        return faker.finance().creditCard();
+    }
+
     private static String getInvalidCardNumber() {
         return faker.number().digits(15);
     }
@@ -75,9 +79,17 @@ public class DataHelper {
         return new CardInfo(getApprovedCardNumber(), "13", "99", getCardHolder(), getCVC());
     }
 
+    public static CardInfo getApprovedCardWithWrongMonth() {
+        return new CardInfo(getApprovedCardNumber(), "00", getYear(), getCardHolder(), getCVC());
+    }
+
     public static CardInfo getApprovedCardWithWrongYear() {
         String year = LocalDate.now().minusYears(1).format(DateTimeFormatter.ofPattern("yy"));
         return new CardInfo(getApprovedCardNumber(), getMonth(), year, getCardHolder(), getCVC());
+    }
+
+    public static CardInfo getCardNotExistInDataBase() {
+        return new CardInfo(getCardNumberNotExistInDataBase(), getMonth(), getYear(), getCardHolder(), getCVC());
     }
 
 

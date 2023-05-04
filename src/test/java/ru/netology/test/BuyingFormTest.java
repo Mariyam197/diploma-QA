@@ -1,6 +1,8 @@
 package ru.netology.test;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.logevents.SelenideLogger;
+import io.qameta.allure.selenide.AllureSelenide;
 import jdk.jfr.Name;
 import org.junit.jupiter.api.*;
 import ru.netology.data.DataHelper;
@@ -12,10 +14,19 @@ import static com.codeborne.selenide.Selenide.open;
 
 public class BuyingFormTest {
 
+    @BeforeAll
+    static void setUpAll() {
+        SelenideLogger.addListener("allure", new AllureSelenide());
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        SelenideLogger.removeListener("allure");
+    }
+
 
     @BeforeEach
     void setup() {
-        Configuration.holdBrowserOpen = true;
         open("http://localhost:8080/");
     }
 
@@ -27,77 +38,72 @@ public class BuyingFormTest {
 
 
     @Test
-    @Name("Успешная покупка тура по действующей карте")
+    @Name("Успешная покупка тура по действующей карте" +
+            "Проверка отображения транзакции в базе данных по действующей карте со статусом ОДОБРЕНО")
     void shouldBuyTourWithApprovedCard() {
         var PaymentMethod = new PaymentMethod();
         var payment = PaymentMethod.buttonByCard();
         payment.inputDataByCard(DataHelper.getApprovedCard());
         payment.waitSuccessfulNotificationForCard();
-    }
-
-    @Test
-    @Name("Проверка отображения транзакции в базе данных по действующей карте со статусом ОДОБРЕНО")
-    void shouldAppearInTheDatabaseWithStatusApproved() {
-        var PaymentMethod = new PaymentMethod();
-        var payment = PaymentMethod.buttonByCard();
-        payment.inputDataByCard(DataHelper.getApprovedCard());
         Assertions.assertEquals("APPROVED", SQL.checkStatus());
     }
 
     @Test
-    @Name("Отказ покупки по недействующей карте")
+    @Name("Отказ покупки по недействующей карте" +
+            "Проверка отображения транзакции в базе данных по недействующей карте со статусом ОТКЛОНЕНО")
     void shouldNotBuyTourWithDeclinedCard() {
         var PaymentMethod = new PaymentMethod();
         var payment = PaymentMethod.buttonByCard();
         payment.inputDataByCard(DataHelper.getDeclinedCard());
         payment.waitErrorNotificationForCard();
-    }
-
-    @Test
-    @Name("Проверка отображения транзакции в базе данных по недействующей карте со статусом ОТКЛОНЕНО")
-    void shouldAppearInTheDatabaseWithStatusDeclined() {
-        var PaymentMethod = new PaymentMethod();
-        var payment = PaymentMethod.buttonByCard();
-        payment.inputDataByCard(DataHelper.getDeclinedCard());
         Assertions.assertEquals("DECLINED", SQL.checkStatus());
     }
 
+
     @Test
-    @Name("Успешная покупка тура в кредит по действующей карте")
+    @Name("Успешная покупка тура в кредит по действующей карте" +
+            "Проверка отображения транзакции в базе данных по действующей карте в кредит со статусом ОДОБРЕНО")
     void shouldBuyTourByCreditWithApprovedCard() {
         var PaymentMethod = new PaymentMethod();
         var payment = PaymentMethod.buttonByCredit();
         payment.inputDataByCredit(DataHelper.getApprovedCard());
         payment.waitSuccessfulNotificationForCreditField();
-    }
-
-    @Test
-    @Name("Проверка отображения транзакции в базе данных по действующей карте в кредит со статусом ОДОБРЕНО")
-    void shouldAppearInTheDatabaseWithStatusApprovedForCredit() {
-        var PaymentMethod = new PaymentMethod();
-        var payment = PaymentMethod.buttonByCredit();
-        payment.inputDataByCredit(DataHelper.getApprovedCard());
         Assertions.assertEquals("APPROVED", SQL.checkStatusCredit());
     }
 
+
     @Test
-    @Name("Отказ в покупке в кредит по недействующей карте")
+    @Name("Отказ в покупке в кредит по недействующей карте" +
+            "Проверка отображения транзакции в базе данных по недействующей карте в кредит со статусом ОТКЛОНЕНО")
     void shouldNotBuyTourByCreditWithDeclinedCard() {
         var PaymentMethod = new PaymentMethod();
         var payment = PaymentMethod.buttonByCredit();
         payment.inputDataByCredit(DataHelper.getDeclinedCard());
         payment.waitErrorNotificationForCreditField();
-    }
-
-    @Test
-    @Name("Проверка отображения транзакции в базе данных по недействующей карте в кредит со статусом ОТКЛОНЕНО")
-    void shouldAppearInTheDatabaseWithStatusDeclinedForCredit() {
-        var PaymentMethod = new PaymentMethod();
-        var payment = PaymentMethod.buttonByCredit();
-        payment.inputDataByCredit(DataHelper.getDeclinedCard());
         Assertions.assertEquals("DECLINED", SQL.checkStatusCredit());
     }
 
+    @Test
+    @Name("Отказ в покупке по карте, отсутствующей в базе данных" +
+            "Проверка отображения транзакции в базе данных по отсутствующей карте со статусом ОТКЛОНЕНО")
+    void shouldNotBuyTourWithNonExistentCard() {
+        var PaymentMethod = new PaymentMethod();
+        var payment = PaymentMethod.buttonByCard();
+        payment.inputDataByCard(DataHelper.getCardNotExistInDataBase());
+        payment.waitErrorNotificationForCard();
+        Assertions.assertEquals("DECLINED", SQL.checkStatus());
+    }
+
+    @Test
+    @Name("Отказ в покупке по карте в кредит, отсутствующей в базе данных" +
+            "Проверка отображения транзакции в базе данных по отсутствующей карте в кредит со статусом ОТКЛОНЕНО")
+    void shouldNotBuyTourWithNonExistentCardByCredit() {
+        var PaymentMethod = new PaymentMethod();
+        var payment = PaymentMethod.buttonByCredit();
+        payment.inputDataByCredit(DataHelper.getCardNotExistInDataBase());
+        payment.waitErrorNotificationForCreditField();
+        Assertions.assertEquals("DECLINED", SQL.checkStatus());
+    }
 
     @Test
     @Name("Ввод невалидных данных в форму оплата по карте" +
@@ -132,6 +138,15 @@ public class BuyingFormTest {
     }
 
     @Test
+    @Name("Проверка отображения уведомления о неверном сроке карты в поле месяц при покупке по карте")
+    void shouldNotBuyTourWhenMonthIsZeroForCardForm() {
+        var PaymentMethod = new PaymentMethod();
+        var payment = PaymentMethod.buttonByCard();
+        payment.inputDataByCard(DataHelper.getApprovedCardWithWrongMonth());
+        payment.checkFieldMonthErrorWithInvalidValue();
+    }
+
+    @Test
     @Name("Проверка отображения уведомления об истекшем сроке карты в поле покупка по карте")
     void shouldBeNotificationsAboutWrongDateForCardField() {
         var PaymentMethod = new PaymentMethod();
@@ -141,7 +156,7 @@ public class BuyingFormTest {
     }
 
     @Test
-    @Name("Ввод невалидных данных в форму покупка в крежит" +
+    @Name("Ввод невалидных данных в форму покупка в кредит" +
             "Проверка отображения уведомления 'Неверный формат' под полями 'Номер карты', 'Месяц', 'Год', 'CVC' " +
             "и 'Поле обязательно для заполения' под полем Владелец")
     void shouldNotBuyTourWithInvalidCardWithWrongFormatDataForCreditForm() {
@@ -181,4 +196,12 @@ public class BuyingFormTest {
         payment.checkWrongYearErrorForCreditForm();
     }
 
+    @Test
+    @Name("Проверка отображения уведомления о неверном сроке карты в поле месяц при покупке в кредит")
+    void shouldNotBuyTourWhenMonthIsZeroForCreditForm() {
+        var PaymentMethod = new PaymentMethod();
+        var payment = PaymentMethod.buttonByCredit();
+        payment.inputDataByCredit(DataHelper.getApprovedCardWithWrongMonth());
+        payment.checkFieldMonthErrorWithInvalidValueForCreditForm();
+    }
 }
