@@ -14,9 +14,9 @@
 ![img_1.png](img_1.png)
 
 ## Отчет Allure
-![](../../../YandexDisk/Скриншоты/2023-05-05_22-28-12.png)
+![2023-05-05_22-28-12](https://user-images.githubusercontent.com/60292308/236624494-f92b0f7d-b1cd-494c-b668-51e1333c13ab.png)
 
-![](../../../YandexDisk/Скриншоты/2023-05-05_22-27-23.png)
+![2023-05-05_22-27-23](https://user-images.githubusercontent.com/60292308/236624516-d20a9cc8-f3bb-4568-8e70-6446456207a6.png)
 
 ## Общие рекомендации
 
