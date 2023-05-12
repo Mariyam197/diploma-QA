@@ -35,18 +35,13 @@
 ### Запуск приложения:
 1. В терминале запустить необходимые базы данных (MySQL, PostgreSQL), а также NodeJS командой: **docker-compose up**.
 2. В новой вкладке терминала запустить приложение в завистимости от базы данных командой:
-- MySQL: **java -jar ./artifacts/aqa-shop.jar -P:jdbc.url=jdbc:mysql://localhost:3306/app**
-- PostgreSQL: **java -jar ./artifacts/aqa-shop.jar -P:jdbc:postgresql://localhost:5432/app**
+- MySQL: **java "-Dspring.datasource.url=jdbc:mysql://localhost:3306/app" "-Dspring.datasource.username=app" "-Dspring.datasource.password=pass" -jar artifacts/aqa-shop.jar**
+- PostgreSQL: **java "-Dspring.datasource.url=jdbc:postgresql://localhost:5432/app" "-Dspring.datasource.username=app" "-Dspring.datasource.password=pass" -jar artifacts/aqa-shop.jar**
 
 ### Запуск тестов
-В новой вкладке терминала ввести команду: **./gradlew clean test --info**
-
-### Примечание
-Для запуска тестов на СУБД Postgresql необходмо в файле **application.properties** строку 
-**#spring.datasource.url=jdbc:postgresql://localhost:5432/app**
-раскомитить, а строку **spring.datasource.url=jdbc:mysql://localhost:3306/app**
-закомитить. Чтобы тесты смогли получить доступ к необходимой базе данных, в файле SQL, необходимо изменить url 
-на **jdbc:postgresql://localhost:5432/app**.
+В новой вкладке терминала ввести команду в зависимости от базы данных: 
+- MySQL: **./gradlew clean test -D db.url=jdbc:mysql://localhost:3306/app**
+- PostgreSQL: **./gradlew clean test -D db.url=jdbc:postgresql://localhost:5432/app**
 
 ### Формирование отчёта по результатам тестирования
 В вкладке терминала ввести команду: **./gradlew allureServe**

@@ -43,15 +43,15 @@ public class BuyingFormByCard {
         yearField.setValue(info.getYear());
         cardHolderField.setValue(info.getCardHolder());
         cvcField.setValue(info.getCvc());
-        button.click(ClickOptions.withTimeout(Duration.ofSeconds(10)));
+        button.click(ClickOptions.withTimeout(Duration.ofSeconds(15)));
     }
 
     public void waitSuccessfulNotificationForCard() {
-        successNotification.shouldBe(Condition.visible, Duration.ofSeconds(10));
+        successNotification.shouldBe(Condition.visible, Duration.ofSeconds(15));
     }
 
     public void waitErrorNotificationForCard() {
-        errorNotification.shouldBe(Condition.visible, Duration.ofSeconds(10));
+        errorNotification.shouldBe(Condition.visible, Duration.ofSeconds(15));
     }
 
     public void waitNotificationWrongFormat() {
