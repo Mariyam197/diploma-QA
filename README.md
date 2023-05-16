@@ -40,8 +40,8 @@
 
 ### Запуск тестов
 В новой вкладке терминала ввести команду в зависимости от базы данных: 
-- MySQL: **./gradlew clean test -D db.url=jdbc:mysql://localhost:3306/app**
-- PostgreSQL: **./gradlew clean test -D db.url=jdbc:postgresql://localhost:5432/app**
+- MySQL: **./gradlew clean test "-Ddb.url=jdbc:mysql://localhost:3306/app"**
+- PostgreSQL: **./gradlew clean test "-Ddb.url=jdbc:postgresql://localhost:5432/app"**
 
 ### Формирование отчёта по результатам тестирования
 В вкладке терминала ввести команду: **./gradlew allureServe**
